@@ -1,0 +1,194 @@
+{
+  "prompt": "Stage this vacant San Juan Islands waterfront family room in a Pacific Northwest Modern Luxury style: arrange a low-profile charcoal wool boucl\u00e9 and cognac saddle-leather L-shaped sectional facing the stacked stone fireplace and island water views, a live-edge salvaged bigleaf maple slab coffee table on blackened steel legs, a pair of sculpted walnut and shearling lounge armchairs on a hand-knotted undyed wool area rug over the wide-plank white oak floor, and warm blown-amber glass and blackened bronze pendant lighting suspended from the Douglas fir trusses.",
+  "images": [
+    "/Users/vladkol/multimodal-agent-builder/skills/multimodal-agent-builder/examples/reference_assets/san_juan_family_room_window_view.jpg",
+    "/Users/vladkol/multimodal-agent-builder/skills/multimodal-agent-builder/examples/reference_assets/san_juan_family_room_from_patio.jpg"
+  ],
+  "data": {
+    "concept_spec": {
+      "project_title": "San Juan Waterfront Family Room \u2014 Pacific Northwest Modern Luxury Staging",
+      "architectural_summary": "The subject space is an expansive, vacant waterfront family room in the San Juan Islands characterized by soaring vaulted Douglas fir timber post-and-beam construction, exposed trusses, purlins, and a tongue-and-groove wood plank ceiling. The floor is finished in wide-plank rift-sawn white oak. Two dominant focal features define the room's geometry: on the right (eastern) wall, a floor-to-ceiling rustic stacked fieldstone chimney breast featuring an integrated blackened steel hearth and linear fireplace; and on the northern and western perimeter, expansive black steel-framed picture glazing and out-swing double terrace doors capturing panoramic island waters, rocky coastline, and native Pacific Northwest conifers. The volume requires a low-profile, grounded furniture footprint that preserves uninterrupted view corridors through the glass while establishing an intimate, balanced conversation zone that unifies both the warmth of the stone hearth and the expansive coastal scenery.",
+      "spatial_zones": [
+        "Primary Conversational Hearth & View Zone: Centrally positioned within the timber-framed volume to capture both the stacked stone fireplace and panoramic coastal sound views without impeding window sightlines.",
+        "Terrace Indoor-Outdoor Circulation Corridor: An unobstructed minimum 4-to-5-foot wide pathway along the left glazed wall and double French doors connecting the interior room to the exterior flagstone patio.",
+        "Fireside Hearth Threshold: A dedicated clearance zone directly fronting the blackened steel fireplace surround and firewood storage niche for safety, access, and architectural presence.",
+        "Rear Secondary Passage: Circulation route behind the fireplace and along the right timber columns providing access to adjacent interior living areas."
+      ],
+      "material_and_furnishing_notes": [
+        "Charcoal wool boucl\u00e9 and cognac saddle-leather custom L-shaped sectional featuring a low-slung, architectural silhouette.",
+        "Salvaged Pacific Northwest live-edge bigleaf maple slab coffee table with natural fissure detailing mounted on matte blackened steel plate legs.",
+        "Pair of sculpted American black walnut lounge armchairs upholstered in high-tactile, plush natural shearling.",
+        "Oversized, hand-knotted undyed natural wool area rug with subtle organic striations, grounding the seating arrangement over the wide-plank white oak floor.",
+        "Custom multi-light pendant cluster featuring hand-blown warm amber glass globes and blackened bronze hardware, suspended from the Douglas fir structural trusses.",
+        "Existing architectural envelope: Exposed Douglas fir timber trusses and tongue-and-groove ceiling, stacked fieldstone fireplace with blackened steel surround and integrated wood-storage bench, wide-plank white oak flooring, and black steel-framed window/door assemblies."
+      ],
+      "proposed_directions": [
+        {
+          "option_title": "Dual-Aspect Panoramic Hearth & Sound Orientation",
+          "rationale": "Harmonizes the two primary spatial anchors (the stacked fieldstone hearth and the coastal water view). By placing the sectional centrally with an open profile toward the fireplace and low backs to the terrace, sightlines from the outdoor deck and indoor entryway remain completely open to the seascape.",
+          "key_elements": [
+            "Low-profile charcoal boucl\u00e9 and cognac saddle-leather L-sectional anchored centrally on the hand-knotted undyed wool rug with its main back parallel to the terrace walkway.",
+            "Cognac leather chaise extension positioned facing the stacked fieldstone fireplace, leaving sightlines to the coastal water clear.",
+            "Sculpted walnut and shearling lounge armchairs angled near the north water-facing window corner to complete a conversational ring.",
+            "Live-edge bigleaf maple slab coffee table centered within the sectional configuration.",
+            "Staggered amber glass and blackened bronze pendant cluster suspended directly from the center truss collar tie."
+          ]
+        },
+        {
+          "option_title": "Hearth-Centric Fireside Enclave with Coastal Promenade",
+          "rationale": "Optimizes the space for seasonal coastal flexibility and intimate family evenings around the fire. Pulling the conversational group toward the hearth liberates a broad, unrestricted pedestrian corridor along the floor-to-ceiling glass and outdoor terrace doors.",
+          "key_elements": [
+            "L-sectional shifted east toward the fieldstone wall, with the primary seating run facing the linear blackened steel fireplace.",
+            "Pair of sculpted walnut and shearling armchairs placed on the water-facing boundary of the undyed wool rug, with low-slung backs keeping the shoreline view open.",
+            "Bigleaf maple slab coffee table running parallel to the fireplace hearth bench.",
+            "Wide, clear 5-foot circulation promenade maintained along the west glazing and terrace French doors.",
+            "Linear pendant arrangement of amber glass drops mounted along the lateral Douglas fir ceiling tie."
+          ]
+        },
+        {
+          "option_title": "Transverse Indoor-Outdoor Coastal Flow",
+          "rationale": "Focuses primarily on the summer indoor-outdoor connection through the double terrace doors. Arranging the seating transversely facilitates seamless movement between the stone terrace, the living space, and the interior corridor, directing maximum visual focus outward toward the water.",
+          "key_elements": [
+            "L-sectional configured with the long charcoal wool segment oriented facing the waterfront vista and the cognac leather chaise extending along the room's interior boundary.",
+            "Pair of sculpted walnut and shearling lounge chairs placed fireside, angled outward toward the outdoor patio and main view.",
+            "Transversely placed hand-knotted undyed wool area rug unifying the stone fireplace plinth and the terrace threshold.",
+            "Live-edge maple coffee table serving as a central organic bridge between the stone and timber elements.",
+            "Asymmetrical grouping of blown-amber glass pendants suspended at varying elevations over the living volume."
+          ]
+        },
+        {
+          "option_title": "Sculptural Asymmetric Pavilion Layout",
+          "rationale": "Emphasizes the architectural scale and structural timber geometry by treating the furnishings as low, sculptural masses floating in an airy volume. This direction celebrates negative floor space and frames both the rugged shoreline and stacked stone wall as living architectural art.",
+          "key_elements": [
+            "Low-slung L-sectional oriented at an intentional subtle angle to naturally direct eye lines across both the rock outcropping outside and the stone hearth inside.",
+            "Oversized salvaged bigleaf maple slab positioned off-center to emphasize negative space and the beauty of the white oak planks.",
+            "Pair of walnut and shearling armchairs offset in a sculptural fireside vignette adjacent to the integrated wood-storage bench.",
+            "Hand-knotted natural wool rug layered slightly askew to soften the crisp post-and-beam grid.",
+            "Multi-tier cascading amber glass droplet pendants hung directly beneath the king post truss."
+          ]
+        }
+      ]
+    },
+    "selected_direction": "Dual-Aspect Panoramic Hearth & Sound Orientation: Harmonizes the two primary spatial anchors (the stacked fieldstone hearth and the coastal water view). By placing the sectional centrally with an open profile toward the fireplace and low backs to the terrace, sightlines from the outdoor deck and indoor entryway remain completely open to the seascape. (Elements: Low-profile charcoal boucl\u00e9 and cognac saddle-leather L-sectional anchored centrally on the hand-knotted undyed wool rug with its main back parallel to the terrace walkway., Cognac leather chaise extension positioned facing the stacked fieldstone fireplace, leaving sightlines to the coastal water clear., Sculpted walnut and shearling lounge armchairs angled near the north water-facing window corner to complete a conversational ring., Live-edge bigleaf maple slab coffee table centered within the sectional configuration., Staggered amber glass and blackened bronze pendant cluster suspended directly from the center truss collar tie.)",
+    "render_spec": {
+      "image_generation_prompt": "A spacious, vaulted San Juan Islands waterfront family room staged in a Pacific Northwest Modern Luxury aesthetic, framed by soaring Douglas fir timber post-and-beam construction, exposed structural trusses, a tongue-and-groove wood plank ceiling, and wide-plank rift-sawn white oak flooring. On the right wall stands a floor-to-ceiling rustic stacked fieldstone fireplace with an integrated blackened steel hearth and linear fireplace. On the north and west perimeter, expansive black steel-framed picture glazing and out-swing double terrace doors frame panoramic views of island waters, rocky coastline, and native Pacific Northwest conifers.\n\nCentrally placed on an oversized hand-knotted undyed wool area rug is a low-profile L-shaped sectional upholstered in charcoal wool boucl\u00e9 and cognac saddle leather, oriented with its main back parallel to the terrace circulation corridor and its cognac leather chaise extending toward the stacked fieldstone hearth to keep sound vistas unobstructed. Centered within the sectional is a live-edge salvaged bigleaf maple slab coffee table with natural fissure detailing set on blackened steel plate legs. Angled near the north water-facing window corner is a pair of sculpted American black walnut lounge armchairs upholstered in plush natural shearling, completing the conversational seating ring. Suspended directly from the central Douglas fir truss collar tie is a staggered pendant cluster of hand-blown warm amber glass globes with blackened bronze hardware, illuminating the natural timber and stone textures.",
+      "focal_composition_notes": "Eye-level interior perspective capturing the dual-aspect living volume, balancing the floor-to-ceiling stacked fieldstone fireplace on the right with the expansive black steel-framed picture glazing and terrace doors overlooking the San Juan Islands sound on the left. The low-profile furniture grouping\u2014anchored by the charcoal wool boucl\u00e9 and cognac leather L-sectional, bigleaf maple slab coffee table, and undyed wool rug\u2014is centered to preserve horizontal sightlines across the water and rocky shore, while vertical framing reveals the soaring Douglas fir timber trusses and suspended amber glass pendant cluster. Clear circulation is maintained along the terrace door promenade and before the fireplace hearth."
+    },
+    "motion_spec": {
+      "video_generation_prompt": "Starting from the exact perspective of the staged render, the camera executes a slow, continuous, and steady eye-level linear forward dolly push-in across the wide-plank white oak floor toward the central seating arrangement. The camera glides smoothly forward along the central axis, gradually drawing closer to the live-edge bigleaf maple coffee table, the charcoal wool boucl\u00e9 and cognac saddle-leather L-sectional, and the sculpted walnut and shearling armchairs resting on the textured undyed wool rug. As the camera advances without any cuts, dissolves, or directional shifts, subtle natural parallax enhances the depth between the suspended amber glass pendant cluster overhead, the Douglas fir ceiling trusses, and the floor-to-ceiling stacked fieldstone fireplace with its blackened steel linear hearth on the right. Through the expansive black steel-framed windows and terrace doors on the left and rear walls, the tranquil coastal waters and conifer-lined shores of the San Juan Islands remain softly visible under natural overcast daylight. Every architectural element, post-and-beam timber truss, window mullion, and staged furniture piece maintains complete spatial permanence throughout the entire unedited 10-second shot.",
+      "aspect_ratio": "16:9",
+      "camera_movement_summary": "A slow, steady linear forward dolly push-in at eye level gliding across the wide-plank white oak flooring toward the central living arrangement and panoramic sound view."
+    },
+    "presentation_spec": {
+      "title": "San Juan Waterfront Family Room \u2014 Pacific Northwest Modern Luxury Staging",
+      "hook": "A masterfully balanced dual-aspect staging harmonizes the warmth of a monolithic stacked fieldstone hearth with panoramic coastal vistas across the San Juan Islands.",
+      "narrative": "Conceived to honor the raw structural integrity of its vaulted Douglas fir post-and-beam construction, this staging transformation resolves the architectural dialogue between two dominant spatial anchors: the soaring stacked fieldstone chimney breast and expansive black steel-framed panoramas of the Pacific Northwest sound. Grounded by the Dual-Aspect Panoramic Hearth & Sound orientation, the design deploys low-slung, sculpturally tailored profiles that celebrate vertical volume and negative floor space while preserving continuous, uninterrupted sightlines across the rocky coastline and native conifer canopy from entryway to terrace.",
+      "headline": "Spatial Harmony, Organic Materiality, and Unobstructed Sound Sightlines",
+      "body_text": "Centering the expansive volume is an oversized, hand-knotted undyed wool area rug whose organic striations ground the wide-plank rift-sawn white oak flooring. Anchored upon it is a custom low-profile L-shaped sectional in charcoal wool boucl\u00e9 and rich cognac saddle leather; its long segment runs parallel to the terrace circulation promenade while the cognac chaise extends toward the floor-to-ceiling stacked fieldstone hearth, simultaneously embracing the linear blackened steel fireplace and keeping sightlines to the coastal water completely clear. At the heart of the seating arrangement, a salvaged Pacific Northwest bigleaf maple live-edge slab coffee table featuring organic fissure detailing rests on matte blackened steel plate legs. Angled near the north water-facing window corner, a pair of sculpted American black walnut lounge armchairs upholstered in plush natural shearling completes the conversational circle. Overhead, suspended from the central Douglas fir truss collar tie, a staggered multi-light cluster of hand-blown warm amber glass globes and blackened bronze hardware casts a soft glow across the natural timber and stonework, while an unimpeded 4-to-5-foot corridor along the double terrace doors ensures effortless indoor-outdoor flow.",
+      "cta_text": "Schedule Staging Review & Immersive Walkthrough"
+    }
+  },
+  "artifacts": {
+    "staged_render": "/Users/vladkol/multimodal-agent-builder/skills/multimodal-agent-builder/examples/outputs/san_juan_islands_family_room/staged_render.png",
+    "walkthrough_video": "/Users/vladkol/multimodal-agent-builder/skills/multimodal-agent-builder/examples/outputs/san_juan_islands_family_room/walkthrough_video.mp4",
+    "metadata_json": "/Users/vladkol/multimodal-agent-builder/skills/multimodal-agent-builder/examples/outputs/san_juan_islands_family_room/pipeline_metadata.json",
+    "showcase_html": "/Users/vladkol/multimodal-agent-builder/skills/multimodal-agent-builder/examples/outputs/san_juan_islands_family_room/showcase.html"
+  },
+  "stage_outputs": {
+    "concept": {
+      "concept_spec": {
+        "project_title": "San Juan Waterfront Family Room \u2014 Pacific Northwest Modern Luxury Staging",
+        "architectural_summary": "The subject space is an expansive, vacant waterfront family room in the San Juan Islands characterized by soaring vaulted Douglas fir timber post-and-beam construction, exposed trusses, purlins, and a tongue-and-groove wood plank ceiling. The floor is finished in wide-plank rift-sawn white oak. Two dominant focal features define the room's geometry: on the right (eastern) wall, a floor-to-ceiling rustic stacked fieldstone chimney breast featuring an integrated blackened steel hearth and linear fireplace; and on the northern and western perimeter, expansive black steel-framed picture glazing and out-swing double terrace doors capturing panoramic island waters, rocky coastline, and native Pacific Northwest conifers. The volume requires a low-profile, grounded furniture footprint that preserves uninterrupted view corridors through the glass while establishing an intimate, balanced conversation zone that unifies both the warmth of the stone hearth and the expansive coastal scenery.",
+        "spatial_zones": [
+          "Primary Conversational Hearth & View Zone: Centrally positioned within the timber-framed volume to capture both the stacked stone fireplace and panoramic coastal sound views without impeding window sightlines.",
+          "Terrace Indoor-Outdoor Circulation Corridor: An unobstructed minimum 4-to-5-foot wide pathway along the left glazed wall and double French doors connecting the interior room to the exterior flagstone patio.",
+          "Fireside Hearth Threshold: A dedicated clearance zone directly fronting the blackened steel fireplace surround and firewood storage niche for safety, access, and architectural presence.",
+          "Rear Secondary Passage: Circulation route behind the fireplace and along the right timber columns providing access to adjacent interior living areas."
+        ],
+        "material_and_furnishing_notes": [
+          "Charcoal wool boucl\u00e9 and cognac saddle-leather custom L-shaped sectional featuring a low-slung, architectural silhouette.",
+          "Salvaged Pacific Northwest live-edge bigleaf maple slab coffee table with natural fissure detailing mounted on matte blackened steel plate legs.",
+          "Pair of sculpted American black walnut lounge armchairs upholstered in high-tactile, plush natural shearling.",
+          "Oversized, hand-knotted undyed natural wool area rug with subtle organic striations, grounding the seating arrangement over the wide-plank white oak floor.",
+          "Custom multi-light pendant cluster featuring hand-blown warm amber glass globes and blackened bronze hardware, suspended from the Douglas fir structural trusses.",
+          "Existing architectural envelope: Exposed Douglas fir timber trusses and tongue-and-groove ceiling, stacked fieldstone fireplace with blackened steel surround and integrated wood-storage bench, wide-plank white oak flooring, and black steel-framed window/door assemblies."
+        ],
+        "proposed_directions": [
+          {
+            "option_title": "Dual-Aspect Panoramic Hearth & Sound Orientation",
+            "rationale": "Harmonizes the two primary spatial anchors (the stacked fieldstone hearth and the coastal water view). By placing the sectional centrally with an open profile toward the fireplace and low backs to the terrace, sightlines from the outdoor deck and indoor entryway remain completely open to the seascape.",
+            "key_elements": [
+              "Low-profile charcoal boucl\u00e9 and cognac saddle-leather L-sectional anchored centrally on the hand-knotted undyed wool rug with its main back parallel to the terrace walkway.",
+              "Cognac leather chaise extension positioned facing the stacked fieldstone fireplace, leaving sightlines to the coastal water clear.",
+              "Sculpted walnut and shearling lounge armchairs angled near the north water-facing window corner to complete a conversational ring.",
+              "Live-edge bigleaf maple slab coffee table centered within the sectional configuration.",
+              "Staggered amber glass and blackened bronze pendant cluster suspended directly from the center truss collar tie."
+            ]
+          },
+          {
+            "option_title": "Hearth-Centric Fireside Enclave with Coastal Promenade",
+            "rationale": "Optimizes the space for seasonal coastal flexibility and intimate family evenings around the fire. Pulling the conversational group toward the hearth liberates a broad, unrestricted pedestrian corridor along the floor-to-ceiling glass and outdoor terrace doors.",
+            "key_elements": [
+              "L-sectional shifted east toward the fieldstone wall, with the primary seating run facing the linear blackened steel fireplace.",
+              "Pair of sculpted walnut and shearling armchairs placed on the water-facing boundary of the undyed wool rug, with low-slung backs keeping the shoreline view open.",
+              "Bigleaf maple slab coffee table running parallel to the fireplace hearth bench.",
+              "Wide, clear 5-foot circulation promenade maintained along the west glazing and terrace French doors.",
+              "Linear pendant arrangement of amber glass drops mounted along the lateral Douglas fir ceiling tie."
+            ]
+          },
+          {
+            "option_title": "Transverse Indoor-Outdoor Coastal Flow",
+            "rationale": "Focuses primarily on the summer indoor-outdoor connection through the double terrace doors. Arranging the seating transversely facilitates seamless movement between the stone terrace, the living space, and the interior corridor, directing maximum visual focus outward toward the water.",
+            "key_elements": [
+              "L-sectional configured with the long charcoal wool segment oriented facing the waterfront vista and the cognac leather chaise extending along the room's interior boundary.",
+              "Pair of sculpted walnut and shearling lounge chairs placed fireside, angled outward toward the outdoor patio and main view.",
+              "Transversely placed hand-knotted undyed wool area rug unifying the stone fireplace plinth and the terrace threshold.",
+              "Live-edge maple coffee table serving as a central organic bridge between the stone and timber elements.",
+              "Asymmetrical grouping of blown-amber glass pendants suspended at varying elevations over the living volume."
+            ]
+          },
+          {
+            "option_title": "Sculptural Asymmetric Pavilion Layout",
+            "rationale": "Emphasizes the architectural scale and structural timber geometry by treating the furnishings as low, sculptural masses floating in an airy volume. This direction celebrates negative floor space and frames both the rugged shoreline and stacked stone wall as living architectural art.",
+            "key_elements": [
+              "Low-slung L-sectional oriented at an intentional subtle angle to naturally direct eye lines across both the rock outcropping outside and the stone hearth inside.",
+              "Oversized salvaged bigleaf maple slab positioned off-center to emphasize negative space and the beauty of the white oak planks.",
+              "Pair of walnut and shearling armchairs offset in a sculptural fireside vignette adjacent to the integrated wood-storage bench.",
+              "Hand-knotted natural wool rug layered slightly askew to soften the crisp post-and-beam grid.",
+              "Multi-tier cascading amber glass droplet pendants hung directly beneath the king post truss."
+            ]
+          }
+        ]
+      },
+      "selected_direction": "Dual-Aspect Panoramic Hearth & Sound Orientation: Harmonizes the two primary spatial anchors (the stacked fieldstone hearth and the coastal water view). By placing the sectional centrally with an open profile toward the fireplace and low backs to the terrace, sightlines from the outdoor deck and indoor entryway remain completely open to the seascape. (Elements: Low-profile charcoal boucl\u00e9 and cognac saddle-leather L-sectional anchored centrally on the hand-knotted undyed wool rug with its main back parallel to the terrace walkway., Cognac leather chaise extension positioned facing the stacked fieldstone fireplace, leaving sightlines to the coastal water clear., Sculpted walnut and shearling lounge armchairs angled near the north water-facing window corner to complete a conversational ring., Live-edge bigleaf maple slab coffee table centered within the sectional configuration., Staggered amber glass and blackened bronze pendant cluster suspended directly from the center truss collar tie.)"
+    },
+    "visual_production": {
+      "render_spec": {
+        "image_generation_prompt": "A spacious, vaulted San Juan Islands waterfront family room staged in a Pacific Northwest Modern Luxury aesthetic, framed by soaring Douglas fir timber post-and-beam construction, exposed structural trusses, a tongue-and-groove wood plank ceiling, and wide-plank rift-sawn white oak flooring. On the right wall stands a floor-to-ceiling rustic stacked fieldstone fireplace with an integrated blackened steel hearth and linear fireplace. On the north and west perimeter, expansive black steel-framed picture glazing and out-swing double terrace doors frame panoramic views of island waters, rocky coastline, and native Pacific Northwest conifers.\n\nCentrally placed on an oversized hand-knotted undyed wool area rug is a low-profile L-shaped sectional upholstered in charcoal wool boucl\u00e9 and cognac saddle leather, oriented with its main back parallel to the terrace circulation corridor and its cognac leather chaise extending toward the stacked fieldstone hearth to keep sound vistas unobstructed. Centered within the sectional is a live-edge salvaged bigleaf maple slab coffee table with natural fissure detailing set on blackened steel plate legs. Angled near the north water-facing window corner is a pair of sculpted American black walnut lounge armchairs upholstered in plush natural shearling, completing the conversational seating ring. Suspended directly from the central Douglas fir truss collar tie is a staggered pendant cluster of hand-blown warm amber glass globes with blackened bronze hardware, illuminating the natural timber and stone textures.",
+        "focal_composition_notes": "Eye-level interior perspective capturing the dual-aspect living volume, balancing the floor-to-ceiling stacked fieldstone fireplace on the right with the expansive black steel-framed picture glazing and terrace doors overlooking the San Juan Islands sound on the left. The low-profile furniture grouping\u2014anchored by the charcoal wool boucl\u00e9 and cognac leather L-sectional, bigleaf maple slab coffee table, and undyed wool rug\u2014is centered to preserve horizontal sightlines across the water and rocky shore, while vertical framing reveals the soaring Douglas fir timber trusses and suspended amber glass pendant cluster. Clear circulation is maintained along the terrace door promenade and before the fireplace hearth."
+      },
+      "staged_render_path": "/Users/vladkol/multimodal-agent-builder/skills/multimodal-agent-builder/examples/outputs/san_juan_islands_family_room/staged_render.png"
+    },
+    "video_production": {
+      "motion_spec": {
+        "video_generation_prompt": "Starting from the exact perspective of the staged render, the camera executes a slow, continuous, and steady eye-level linear forward dolly push-in across the wide-plank white oak floor toward the central seating arrangement. The camera glides smoothly forward along the central axis, gradually drawing closer to the live-edge bigleaf maple coffee table, the charcoal wool boucl\u00e9 and cognac saddle-leather L-sectional, and the sculpted walnut and shearling armchairs resting on the textured undyed wool rug. As the camera advances without any cuts, dissolves, or directional shifts, subtle natural parallax enhances the depth between the suspended amber glass pendant cluster overhead, the Douglas fir ceiling trusses, and the floor-to-ceiling stacked fieldstone fireplace with its blackened steel linear hearth on the right. Through the expansive black steel-framed windows and terrace doors on the left and rear walls, the tranquil coastal waters and conifer-lined shores of the San Juan Islands remain softly visible under natural overcast daylight. Every architectural element, post-and-beam timber truss, window mullion, and staged furniture piece maintains complete spatial permanence throughout the entire unedited 10-second shot.",
+        "aspect_ratio": "16:9",
+        "camera_movement_summary": "A slow, steady linear forward dolly push-in at eye level gliding across the wide-plank white oak flooring toward the central living arrangement and panoramic sound view."
+      },
+      "walkthrough_video_path": "/Users/vladkol/multimodal-agent-builder/skills/multimodal-agent-builder/examples/outputs/san_juan_islands_family_room/walkthrough_video.mp4"
+    },
+    "presentation_packaging": {
+      "presentation_spec": {
+        "title": "San Juan Waterfront Family Room \u2014 Pacific Northwest Modern Luxury Staging",
+        "hook": "A masterfully balanced dual-aspect staging harmonizes the warmth of a monolithic stacked fieldstone hearth with panoramic coastal vistas across the San Juan Islands.",
+        "narrative": "Conceived to honor the raw structural integrity of its vaulted Douglas fir post-and-beam construction, this staging transformation resolves the architectural dialogue between two dominant spatial anchors: the soaring stacked fieldstone chimney breast and expansive black steel-framed panoramas of the Pacific Northwest sound. Grounded by the Dual-Aspect Panoramic Hearth & Sound orientation, the design deploys low-slung, sculpturally tailored profiles that celebrate vertical volume and negative floor space while preserving continuous, uninterrupted sightlines across the rocky coastline and native conifer canopy from entryway to terrace.",
+        "headline": "Spatial Harmony, Organic Materiality, and Unobstructed Sound Sightlines",
+        "body_text": "Centering the expansive volume is an oversized, hand-knotted undyed wool area rug whose organic striations ground the wide-plank rift-sawn white oak flooring. Anchored upon it is a custom low-profile L-shaped sectional in charcoal wool boucl\u00e9 and rich cognac saddle leather; its long segment runs parallel to the terrace circulation promenade while the cognac chaise extends toward the floor-to-ceiling stacked fieldstone hearth, simultaneously embracing the linear blackened steel fireplace and keeping sightlines to the coastal water completely clear. At the heart of the seating arrangement, a salvaged Pacific Northwest bigleaf maple live-edge slab coffee table featuring organic fissure detailing rests on matte blackened steel plate legs. Angled near the north water-facing window corner, a pair of sculpted American black walnut lounge armchairs upholstered in plush natural shearling completes the conversational circle. Overhead, suspended from the central Douglas fir truss collar tie, a staggered multi-light cluster of hand-blown warm amber glass globes and blackened bronze hardware casts a soft glow across the natural timber and stonework, while an unimpeded 4-to-5-foot corridor along the double terrace doors ensures effortless indoor-outdoor flow.",
+        "cta_text": "Schedule Staging Review & Immersive Walkthrough"
+      },
+      "showcase_html_path": "/Users/vladkol/multimodal-agent-builder/skills/multimodal-agent-builder/examples/outputs/san_juan_islands_family_room/showcase.html"
+    }
+  },
+  "revision_history": [],
+  "cloud_urls": {}
+}

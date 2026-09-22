@@ -1,0 +1,12 @@
+[project]
+name = "multimodal-agent-builder"
+version = "0.1.0"
+description = "Skill and reusable toolkit for building multi-agent, multimodal pipelines with asset generation using the Google Antigravity SDK."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-antigravity",
+    "google-genai",
+    "google-cloud-storage",
+    "pydantic>=2.0.0",
+]
