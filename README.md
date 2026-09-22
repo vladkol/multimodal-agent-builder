@@ -1,6 +1,6 @@
 # Multimodal Agent Builder Skill
 
-A comprehensive AI agent skill and reusable Python toolkit for architecting and implementing custom **multi-agent, multimodal pipelines with generative media assets** using the **Google Antigravity SDK** (`google-antigravity`) and **Google Cloud Agent Platform**.
+A comprehensive AI agent skill and reusable Python toolkit for architecting and implementing custom **multi-agent, multimodal pipelines with generative media assets** using the **Google Antigravity SDK** (`google-antigravity`) and **Gemini Enterprise Agent Platform**.
 
 Unlike static, fixed-topology workflows, systems built with `multimodal-agent-builder` derive their entire **subagent team topology, structured schemas, human-in-the-loop checkpoints, and asset handoffs** directly from the specific business or creative process being automated.
 
@@ -67,7 +67,7 @@ multimodal-agent-builder/
 | Module | Key Exports | Purpose |
 | :--- | :--- | :--- |
 | [`core/multimodal_input.py`](./skills/multimodal-agent-builder/core/multimodal_input.py) | `load_multimodal_inputs`, `MultimodalInputBundle`, `InputImageRecord` | Validates and loads a text prompt plus zero or more reference images (`.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`) into SDK `types.Image` attachments. |
-| [`core/asset_tools.py`](./skills/multimodal-agent-builder/core/asset_tools.py) | `generate_image_tool`, `generate_video_tool`, `upload_to_gcs_tool`, `get_agent_platform_client` | Connects to Google Cloud Agent Platform via Application Default Credentials (ADC) to generate images, 10-second videos, and GCS mTLS artifacts. |
+| [`core/asset_tools.py`](./skills/multimodal-agent-builder/core/asset_tools.py) | `generate_image_tool`, `generate_video_tool`, `upload_to_gcs_tool`, `get_agent_platform_client` | Connects to Gemini Enterprise Agent Platform via Application Default Credentials (ADC) to generate images, 10-second videos, and GCS mTLS artifacts. |
 | [`core/console_runner.py`](./skills/multimodal-agent-builder/core/console_runner.py) | `ConsoleAskQuestionHook`, `prompt_ask_question` | Implements `hooks.OnInteractionHook` for `types.BuiltinTools.ASK_QUESTION` and provides interactive/autonomous question prompting with custom write-in support. |
 | [`core/html_packager.py`](./skills/multimodal-agent-builder/core/html_packager.py) | `ProcessPresentationPackager` | Generates self-contained, scroll-animated, mobile-responsive (`9:16`) HTML5 showcase pages embedding local base64 media fallbacks and cloud mTLS links. |
 | [`core/pipeline_engine.py`](./skills/multimodal-agent-builder/core/pipeline_engine.py) | `PipelineEngine`, `Stage`, `PipelineState`, `execute_structured_turn` | Orchestrates multi-stage subagent execution, enforces native Pydantic `response_schema` turns, and tracks artifacts across stages. |
