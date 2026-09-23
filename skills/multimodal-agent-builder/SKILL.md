@@ -117,7 +117,7 @@ The skill provides modular, ready-to-use Python building blocks under `core/`:
 | :--- | :--- |
 | [`core/multimodal_input.py`](./core/multimodal_input.py) | Ingestion and normalization of text prompts and one or multiple input images into `Image` attachments. |
 | [`core/asset_tools.py`](./core/asset_tools.py) | Standalone Agent Platform tool functions for image generation, video generation, and GCS mTLS uploads. |
-| [`core/console_runner.py`](./core/console_runner.py) | Universal console runner with `ConsoleAskQuestionHook` supporting native SDK `BuiltinTools.ASK_QUESTION` in interactive and autonomous modes. |
+| [`core/console_runner.py`](./core/console_runner.py) | Universal console runner with `ConsoleAskQuestionHook` supporting native SDK `BuiltinTools.ASK_QUESTION` in interactive and autonomous modes, plus the console logging policy (`configure_console_logging`, `add_logging_cli_args`, `configure_logging_from_args`) that suppresses third-party SDK chatter unless `--logging` is passed. |
 | [`core/html_packager.py`](./core/html_packager.py) | Generative HTML presentation engine enforcing Impression First -> Details After -> Scroll Background -> Mobile 9:16. |
 | [`core/pipeline_engine.py`](./core/pipeline_engine.py) | Process-agnostic multi-agent pipeline engine managing `Stage` definitions, execution, and state passing. |
 
@@ -261,4 +261,12 @@ When invoking scripts built with this toolkit:
 3. **Human-in-the-Loop Interaction & Autonomy**:
    - **Interactive Mode** (default): Uses `ConsoleAskQuestionHook` to render questions and options in the console whenever the agent invokes `ask_question`. Reviewers can pick numbers, option text, or provide freeform direction.
    - **Autonomous Mode (`--autonomous`)**: Automatically answers agent questions using the default options without blocking, enabling unattended CI/CD runs and automated regression testing.
+
+4. **Console Output Policy (`--logging` / `--log-level`)**:
+   - Generated harnesses **MUST NOT** call `logging.basicConfig(level=logging.INFO)`. A root handler at `INFO` makes every third-party library log, which buries the interactive prompts and approval gates.
+   - Instead, register the flags with `add_logging_cli_args(parser)` and apply the policy with `configure_logging_from_args(args)` from `core/console_runner.py`.
+   - **Default (quiet)**: the root logger is pinned to `WARNING`. This is required rather than merely muting named SDK loggers, because the Antigravity local harness re-emits its subprocess stderr through the **root** logger (`logging.info("harness stderr: %s", line)`), so those records are not attributable to any SDK namespace. Known noisy namespaces (`google_genai*`, `google.antigravity`, `google.auth`, `google.cloud`, `httpx*`, `urllib3`, `opentelemetry`, `absl`, ...) are additionally pinned to `WARNING`. Nothing is lost on failure: the SDK retains a tail of harness stderr and attaches it to connection errors.
+   - Toolkit progress logs (`core.*`) and the harness script's own logs stay at `INFO`, and all `WARNING`/`ERROR` records always surface.
+   - **`--logging`** restores full verbose third-party logging; **`--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}`** implies `--logging`.
+
 

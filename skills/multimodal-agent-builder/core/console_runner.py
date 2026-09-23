@@ -3,17 +3,173 @@
 Provides universal integration with google.antigravity SDK's BuiltinTools.ASK_QUESTION
 and AskQuestionHook (hooks.OnInteractionHook) for user interaction, preference choices,
 clarifications, and reviews, with full support for headless autonomous evaluation.
+
+Also owns console harness logging policy: third-party SDK chatter (Gen AI SDK
+automatic function calling, per-request HTTP lines, Antigravity harness stderr)
+is suppressed by default so the interactive prompts stay readable, and is only
+restored when the harness is started with `--logging`.
 """
 
 from __future__ import annotations
 
+import argparse
 import logging
-from typing import List, Optional, Union
+from typing import List, Optional, Sequence, Union
 
 from google.antigravity import hooks, types
 from google.antigravity.utils.interactive import async_input
 
 logger = logging.getLogger(__name__)
+
+
+# ============================================================================
+# Console logging policy
+# ============================================================================
+
+DEFAULT_LOG_FORMAT = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+
+LOG_LEVEL_CHOICES = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+
+# Third-party namespaces that emit high-volume INFO records during an agent run:
+# Gen AI SDK automatic function calling ('google_genai.models', 'google_genai.chats'),
+# one HTTP line per API call ('httpx'), auth/telemetry/transport bookkeeping.
+THIRD_PARTY_LOG_NAMESPACES: tuple[str, ...] = (
+    "absl",
+    "google.antigravity",
+    "google.api_core",
+    "google.auth",
+    "google.cloud",
+    "google_genai",
+    "grpc",
+    "httpcore",
+    "httpcore2",
+    "httpx",
+    "httpx2",
+    "mcp",
+    "opentelemetry",
+    "urllib3",
+)
+
+
+def _toolkit_log_namespace() -> str:
+    """Returns the dotted namespace of the toolkit package containing this module."""
+    return __name__.rsplit(".", 1)[0] if "." in __name__ else __name__
+
+
+# Namespaces whose INFO records remain visible in quiet mode: the toolkit itself
+# (asset generation, stage progress) and the harness script executed as `__main__`.
+DEFAULT_APP_LOG_NAMESPACES: tuple[str, ...] = (_toolkit_log_namespace(), "__main__")
+
+
+def _coerce_log_level(level: Union[int, str, None], default: int) -> int:
+    """Normalizes a level name or numeric level into a logging level integer."""
+    if level is None:
+        return default
+    if isinstance(level, int):
+        return level
+    resolved = logging.getLevelName(str(level).strip().upper())
+    return resolved if isinstance(resolved, int) else default
+
+
+def configure_console_logging(
+    enable_logging: bool = False,
+    level: Union[int, str, None] = None,
+    app_namespaces: Optional[Sequence[str]] = None,
+    log_format: str = DEFAULT_LOG_FORMAT,
+) -> int:
+    """Configures console logging for an agent harness, quiet by default.
+
+    Quiet mode (``enable_logging=False``) pins the *root* logger to WARNING. This is
+    deliberate rather than only muting named SDK loggers: the Antigravity local
+    harness re-emits every line of its subprocess stderr through the root logger
+    (``logging.info("harness stderr: %s", line)``), so those records carry the name
+    ``root`` and cannot be filtered by namespace. Suppressed harness stderr is not
+    lost on failure -- the SDK retains a tail of it and attaches it to connection
+    errors. The third-party namespaces are additionally pinned to WARNING so the
+    chatter stays off even if other code later raises the root level.
+
+    Args:
+        enable_logging: If True, restore full verbose third-party logging.
+        level: Root level applied when `enable_logging` is True (default INFO).
+            Ignored in quiet mode, where the root logger is always WARNING.
+        app_namespaces: Namespaces kept at INFO in quiet mode. Defaults to the
+            toolkit package and `__main__`.
+        log_format: Format string used if no root handler is installed yet.
+
+    Returns:
+        The effective root logger level that was applied.
+    """
+    # Installs a root handler only if the process has none; never changes the level.
+    logging.basicConfig(level=logging.WARNING, format=log_format)
+    root = logging.getLogger()
+
+    if enable_logging:
+        root_level = _coerce_log_level(level, logging.INFO)
+        root.setLevel(root_level)
+        # Clear any previously applied suppression so this stays idempotent.
+        for name in THIRD_PARTY_LOG_NAMESPACES:
+            logging.getLogger(name).setLevel(logging.NOTSET)
+        return root_level
+
+    root.setLevel(logging.WARNING)
+    for name in THIRD_PARTY_LOG_NAMESPACES:
+        logging.getLogger(name).setLevel(logging.WARNING)
+
+    namespaces = (
+        DEFAULT_APP_LOG_NAMESPACES if app_namespaces is None else app_namespaces
+    )
+    # Handlers are attached to root with no level of their own, so INFO records
+    # from these namespaces still reach the console despite root being WARNING.
+    for name in namespaces:
+        logging.getLogger(name).setLevel(logging.INFO)
+
+    return logging.WARNING
+
+
+def add_logging_cli_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Registers the standard `--logging` / `--log-level` flags on a harness parser.
+
+    Args:
+        parser: The argument parser to extend.
+
+    Returns:
+        The same parser, for chaining.
+    """
+    group = parser.add_argument_group("logging")
+    group.add_argument(
+        "--logging",
+        action="store_true",
+        dest="logging_enabled",
+        help=(
+            "Show verbose third-party SDK logs (Gen AI SDK, HTTP requests, Antigravity "
+            "harness stderr). Suppressed by default so console prompts stay readable."
+        ),
+    )
+    group.add_argument(
+        "--log-level",
+        type=str,
+        choices=list(LOG_LEVEL_CHOICES),
+        default=None,
+        dest="log_level",
+        help="Root log level to apply for verbose logging (implies --logging). Default: INFO.",
+    )
+    return parser
+
+
+def configure_logging_from_args(args: argparse.Namespace) -> int:
+    """Applies the console logging policy from parsed `--logging` / `--log-level` args.
+
+    Passing `--log-level` implies `--logging`.
+
+    Args:
+        args: Parsed arguments produced by a parser extended with `add_logging_cli_args`.
+
+    Returns:
+        The effective root logger level that was applied.
+    """
+    log_level = getattr(args, "log_level", None)
+    enable = bool(getattr(args, "logging_enabled", False)) or log_level is not None
+    return configure_console_logging(enable_logging=enable, level=log_level)
 
 
 class ConsoleAskQuestionHook(hooks.OnInteractionHook):

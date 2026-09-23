@@ -84,3 +84,21 @@ uv run python skills/multimodal-agent-builder/examples/architectural_virtual_sta
   --bucket my-gcs-showcase-bucket \
   --gcs-prefix showcases/san-juan-family-room
 ```
+
+### 4. Verbose SDK Logging (`--logging` / `--log-level`)
+By default the harness keeps the console quiet so the interactive prompts and approval gates stay readable. Third-party `INFO` chatter is suppressed:
+- Gen AI SDK automatic function calling (`google_genai.models`, `google_genai.chats`) — e.g. `AFC is enabled with max remote calls: 10.`, `AFC remote call N is done.`
+- One `HTTP Request: POST ... 200 OK` line per API call (`httpx`).
+- Every line of the Antigravity local harness subprocess stderr, which the SDK re-emits through the **root** logger as `harness stderr: ...`.
+
+Progress logs from the toolkit itself (`core.*`) and the harness script remain visible, as do all `WARNING`/`ERROR` records. Suppressed harness stderr is still retained by the SDK and attached to connection errors, so nothing is lost on failure.
+
+Pass `--logging` to restore the full firehose, or `--log-level` for finer control (implies `--logging`):
+
+```bash
+uv run python skills/multimodal-agent-builder/examples/architectural_virtual_staging_agent.py \
+  --brief "Stage this vacant San Juan Islands waterfront family room in a Pacific Northwest Modern Luxury style" \
+  --image skills/multimodal-agent-builder/examples/reference_assets/san_juan_family_room_window_view.jpg \
+  --output-dir skills/multimodal-agent-builder/examples/outputs/san_juan_islands_family_room_debug \
+  --log-level DEBUG
+```

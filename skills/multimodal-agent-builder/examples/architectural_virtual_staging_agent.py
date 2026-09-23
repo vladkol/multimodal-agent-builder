@@ -45,6 +45,8 @@ from core import (
     PipelineState,
     ProcessPresentationPackager,
     Stage,
+    add_logging_cli_args,
+    configure_logging_from_args,
     execute_structured_turn,
     generate_image_tool,
     generate_video_tool,
@@ -693,16 +695,14 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         action="store_true",
         help="Resume from an existing pipeline_checkpoint.json in --output-dir if present (default: start fresh).",
     )
+    add_logging_cli_args(parser)
     return parser.parse_args(argv)
 
 
 async def async_main(argv: Optional[List[str]] = None) -> PipelineState:
     """Asynchronous entrypoint loading multimodal inputs and executing the pipeline."""
     args = parse_args(argv)
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    )
+    configure_logging_from_args(args)
 
     input_bundle = load_multimodal_inputs(
         prompt=args.brief,
