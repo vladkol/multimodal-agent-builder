@@ -26,7 +26,7 @@ from .asset_tools import (
     generate_video_tool,
     upload_to_gcs_tool,
 )
-from .console_runner import ConsoleAskQuestionHook
+from .console_runner import ConsoleAskQuestionHook, GateDecision, prompt_approval_gate
 from .multimodal_input import MultimodalInputBundle
 
 logger = logging.getLogger(__name__)
@@ -117,6 +117,28 @@ class Stage:
     run_fn: StageRunFn
     description: str = ""
     response_schema: Optional[Type[pydantic.BaseModel]] = None
+    requires_approval: bool = False
+    approval_question: Optional[str] = None
+    approve_label: str = "Approve & Proceed to next stage"
+    deny_label: str = "Deny / Revise (return to current or earlier stage)"
+
+
+class StageRoutingDecision(pydantic.BaseModel):
+    """Structured routing decision emitted by the agent when a human gate is not approved."""
+
+    target_stage: str = pydantic.Field(
+        description=(
+            "The exact name of the stage to return to (must be one of the candidate previous/current stages)."
+        )
+    )
+    revision_instructions: str = pydantic.Field(
+        description=(
+            "Concrete, actionable revision instructions to pass to `target_stage` incorporating the human's response."
+        )
+    )
+    reasoning: str = pydantic.Field(
+        description="Explanation of why `target_stage` was selected based on the human's non-approval response."
+    )
 
 
 async def execute_structured_turn(
@@ -185,6 +207,60 @@ async def execute_structured_turn(
     raise last_err
 
 
+async def resolve_rollback_stage(
+    current_stage_name: str,
+    candidate_stages: List[Stage],
+    user_response: str,
+    state: PipelineState,
+    project_id: Optional[str] = None,
+) -> StageRoutingDecision:
+    """Determines which previous (or current) stage the workflow should return to when a gate is not approved."""
+    stage_catalog = "\n".join(
+        f"  - '{s.name}' (Subagent: {s.subagent_config.name}): {s.description or s.subagent_config.description}"
+        for s in candidate_stages
+    )
+    valid_names = [s.name for s in candidate_stages]
+
+    router_instructions = (
+        "You are the Pipeline Gate Router. A human reviewer did NOT approve the current stage gate. "
+        "Your job is to inspect the human's response/feedback and decide which stage in `valid_stages` "
+        "(either the current stage or an earlier stage) the workflow must rewind to so the feedback can be addressed.\n"
+        "Rules:\n"
+        f"1. `target_stage` MUST be one of: {valid_names}.\n"
+        "2. If the user's feedback asks to change high-level concepts, layout directions, or initial parameters, "
+        "route back to the earliest concept/planning stage.\n"
+        "3. If the user's feedback only asks to adjust or regenerate the current stage's artifact (e.g. re-render image "
+        "or adjust camera motion), route to the stage responsible for that artifact.\n"
+        "4. Formulate clear, self-contained `revision_instructions` that the target stage subagent will execute."
+    )
+
+    prompt_text = (
+        f"CURRENT BLOCKED GATE STAGE: '{current_stage_name}'\n"
+        f"CANDIDATE STAGES TO RETURN TO (in chronological order):\n{stage_catalog}\n\n"
+        f"HUMAN NON-APPROVAL RESPONSE / FEEDBACK:\n{user_response}\n\n"
+        f"CURRENT PIPELINE ARTIFACTS:\n{json.dumps(state.artifacts, indent=2)}\n\n"
+        f"Select `target_stage` from {valid_names} and provide `revision_instructions`."
+    )
+
+    decision, _ = await execute_structured_turn(
+        prompt=prompt_text,
+        response_schema=StageRoutingDecision,
+        system_instructions=router_instructions,
+        project_id=project_id,
+        autonomous=True,
+    )
+
+    # Deterministic clamp: never allow target_stage outside candidate_stages
+    if decision.target_stage not in valid_names:
+        logger.warning(
+            f"Router suggested stage '{decision.target_stage}' outside valid rollback set {valid_names}; "
+            f"clamping to '{current_stage_name}'."
+        )
+        decision.target_stage = current_stage_name
+
+    return decision
+
+
 class PipelineEngine:
     """Coordinates the execution of process-specific multi-agent teams."""
 
@@ -239,7 +315,7 @@ class PipelineEngine:
         autonomous: bool = False,
         resume: bool = True,
     ) -> PipelineState:
-        """Executes the multi-stage pipeline with optional stage checkpoint resumption.
+        """Executes the multi-stage pipeline with deterministic approval gates and iterative rollback routing.
 
         Args:
             inputs: MultimodalInputBundle with prompt and optional reference images.
@@ -267,27 +343,107 @@ class PipelineEngine:
         print(f"  Interaction Hook: ConsoleAskQuestionHook (autonomous={autonomous})")
         print(f"{divider}\n")
 
+        pending_revision: Dict[str, str] = {}
+        stage_idx = 0
+
         async with Agent(config) as agent:
-            for idx, stage in enumerate(self.stages, 1):
-                if resume and stage.name in state.stage_outputs:
+            while stage_idx < len(self.stages):
+                stage = self.stages[stage_idx]
+                revision_note = pending_revision.pop(stage.name, None)
+
+                if resume and stage.name in state.stage_outputs and revision_note is None:
                     print(
-                        f"[{idx}/{len(self.stages)}] Skipping Stage: '{stage.name}' "
+                        f"[{stage_idx + 1}/{len(self.stages)}] Skipping Stage: '{stage.name}' "
                         f"({stage.subagent_config.name}) — restored from checkpoint.\n"
                     )
+                    stage_idx += 1
                     continue
 
-                print(f"[{idx}/{len(self.stages)}] Running Stage: '{stage.name}' ({stage.subagent_config.name})...")
+                if revision_note:
+                    print(
+                        f"[{stage_idx + 1}/{len(self.stages)}] Re-Running Stage: '{stage.name}' "
+                        f"({stage.subagent_config.name}) with Revision Instructions:\n"
+                        f"  ↳ {revision_note}"
+                    )
+                else:
+                    print(
+                        f"[{stage_idx + 1}/{len(self.stages)}] Running Stage: '{stage.name}' "
+                        f"({stage.subagent_config.name})..."
+                    )
 
-                # Execute stage run function.
-                # If the agent needs to ask questions, clarify requirements, or request confirmation,
-                # it directly calls BuiltinTools.ASK_QUESTION handled by ConsoleAskQuestionHook.
-                stage_output = await stage.run_fn(agent, state, None)
+                stage_output = await stage.run_fn(agent, state, revision_note)
+
+                # Deterministic Gate Enforcement:
+                # If the stage declares `requires_approval=True` or returned a `GateDecision` in `stage_output`,
+                # the workflow CANNOT move past `stage_idx` unless `gate_decision.approved is True`.
+                gate_decision: Optional[GateDecision] = None
+                if isinstance(stage_output.get("gate_decision"), GateDecision):
+                    gate_decision = stage_output.pop("gate_decision")
+                elif stage.requires_approval:
+                    question_str = (
+                        stage.approval_question
+                        or f"Approve outputs of Stage '{stage.name}' ({stage.subagent_config.name}) to proceed?"
+                    )
+                    gate_decision = prompt_approval_gate(
+                        question=question_str,
+                        approve_label=stage.approve_label,
+                        deny_label=stage.deny_label,
+                        autonomous=autonomous,
+                    )
+
+                if gate_decision is not None and gate_decision.approved is not True:
+                    # Gate NOT approved -> Deterministically block forward progression and route to a previous/current stage
+                    candidate_stages = self.stages[: stage_idx + 1]
+                    routing = await resolve_rollback_stage(
+                        current_stage_name=stage.name,
+                        candidate_stages=candidate_stages,
+                        user_response=gate_decision.raw_response,
+                        state=state,
+                        project_id=self.project_id,
+                    )
+                    target_idx = next(
+                        (i for i, s in enumerate(self.stages) if s.name == routing.target_stage),
+                        stage_idx,
+                    )
+                    # Deterministic safety guarantee: never jump forward
+                    target_idx = min(target_idx, stage_idx)
+                    target_stage_name = self.stages[target_idx].name
+
+                    print(
+                        f"🔄 GATE ROUTER DECISION:\n"
+                        f"  • Blocked at Stage: '{stage.name}'\n"
+                        f"  • Rewinding Workflow to Stage [{target_idx + 1}/{len(self.stages)}]: '{target_stage_name}'\n"
+                        f"  • Reasoning: {routing.reasoning}\n"
+                        f"  • Revision Instructions: {routing.revision_instructions}\n"
+                    )
+
+                    # Invalidate stage_outputs from target_idx onwards so they are re-executed cleanly
+                    for invalidated in self.stages[target_idx : stage_idx + 1]:
+                        state.stage_outputs.pop(invalidated.name, None)
+
+                    state.revision_history.append(
+                        {
+                            "from_stage": stage.name,
+                            "to_stage": target_stage_name,
+                            "user_response": gate_decision.raw_response,
+                            "revision_instructions": routing.revision_instructions,
+                            "reasoning": routing.reasoning,
+                        }
+                    )
+                    pending_revision[target_stage_name] = routing.revision_instructions
+                    if self.checkpoint_path:
+                        state.save_checkpoint(self.checkpoint_path)
+
+                    stage_idx = target_idx
+                    continue
+
+                # Gate passed (or no approval gate on this stage) -> record completion and advance
                 state.stage_outputs[stage.name] = stage_output
-
                 if self.checkpoint_path:
                     state.save_checkpoint(self.checkpoint_path)
 
                 print(f"✔ Stage '{stage.name}' completed.\n")
+                stage_idx += 1
 
         print(f"\n{divider}")
         print("🎉 PIPELINE EXECUTION COMPLETED")
@@ -297,3 +453,4 @@ class PipelineEngine:
         print(f"{divider}\n")
 
         return state
+

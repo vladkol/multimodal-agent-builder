@@ -41,25 +41,22 @@ They will also need `google-genai`, `pydantic`, `google-cloud-storage`.
    - **Bespoke Presentation Packaging**: 100% from-scratch generative HTML/CSS/SVG pages presenting the campaign to stakeholders (Impression First -> Details After -> Scroll-driven Animated Background -> Mobile 9:16 responsive).
    - **Google Cloud Storage (GCS)**: Authenticated mTLS delivery (`https://storage.mtls.cloud.google.com/<bucket>/<path>`).
 
-4. **Universal Human-in-the-Loop Interaction (`ask_question` & `AskQuestionHook`)**:
-   - Human interaction is **NOT limited to approval gates**. The agent frequently needs to ask clarifying questions clarify requirements, solicit user preferences between options, or ask for human review.
-   - The agent itself decides *when* to ask and *what* options to present using the SDK's native `BuiltinTools.ASK_QUESTION`.
-     Agents are not supposed to hardcode options UNLESS IT'S DICTATED BY THE PROCESS. Options must be generated depending on the context.
-     There should always be an option to provide a custom answer, and the agent is supposed to handle that.
+4. **Universal Human-in-the-Loop Interaction, Deterministic Approval Gates & Iterative Rollback**:
+   - Human interaction covers two distinct mechanisms:
+     1. **Exploratory / Preference Questions (`ask_question` & `prompt_ask_question`)**:
+        - Used when the agent needs to clarify requirements or ask the user to choose among dynamically generated creative options.
+        - Options must be generated dynamically on the fly from the brief and context (unless dictated by a standard), and must always include a `[Custom]` write-in choice.
+     2. **Deterministic Approval Gates & Iterative Stage Rollback (`requires_approval=True`, `prompt_approval_gate`, `resolve_rollback_stage`)**:
+        - When a stage requires an approval or yes/no gate before advancing, the workflow **MUST deterministically verify** whether explicit approval was granted (`GateDecision.approved is True`).
+        - **Strict Gate Invariant**: Only an explicit approval selection (`[1]` / `approve` / `yes`) sets `GateDecision.approved = True` and permits the pipeline to move forward to the next stage. No matter what else is said in that gate interaction (`[2] Deny`, `[3] Custom`, or any freeform feedback), the workflow **never** advances through the gate unless `approved is True`.
+        - **Iterative Stage Rollback (`StageRoutingDecision`)**: Whenever the gate answer is NOT the explicit approval choice (`approved is False`), the pipeline engine invokes `resolve_rollback_stage(...)` using native Pydantic `StageRoutingDecision(target_stage, revision_instructions, reasoning)`. The router analyzes the user's feedback against all candidate stages (`stages[: stage_idx + 1]`) and decides **which previous (or current) stage** (`target_stage`) the workflow must move back to.
+        - The engine invalidates stage outputs from `target_stage` through `current_stage`, rewinds the stage pointer to `target_stage`, and passes `revision_instructions` into `run_fn(agent, state, extra)` so the target stage incorporates the human revision before re-running downstream stages and re-testing the approval gate.
+   - The core toolkit provides `core/console_runner.py` (`ConsoleAskQuestionHook`, `prompt_ask_question`, `prompt_approval_gate`, `GateDecision`) and `core/pipeline_engine.py` (`StageRoutingDecision`, `resolve_rollback_stage`):
+     - **Interactive Mode**: Renders dynamic options and deterministic approval gates in the console, enforcing the gate invariant and routing non-approvals back to the appropriate stage.
+     - **Autonomous Mode (`--autonomous`)**: Automatically selects default options and approves gates without blocking, enabling headless testing and CI/CD.
 
-     Example: The process describes a step when the user must choose one of 3 colors: red, gree or blue.
-     Result in the agent: The agent must ask a question with 4 options: red, green, blue.
-     Example 2: the process describes a step when the user must tell what architecture style to use.
-     Result in the agent: Depending on the target business and the process, the agent _may_ suggest some options,
-     but there should be an additional option when the user just enters their own answer.
-
-   - The core toolkit provides `core/console_runner.py` with `ConsoleAskQuestionHook(hooks.OnInteractionHook)`:
-     - **Interactive Mode**: Dynamically renders any question and options in the console, parses numeric or text selections, or accepts freeform user input.
-     - **Autonomous Mode (`--autonomous`)**: Automatically answers with default choices without blocking, enabling headless testing and CI/CD.
-   - Core tools remain universal and flexible; the automated process or agent prompt defines the dialogue, not hardcoded gate frameworks.
-
-5. **Intermediate Asset & State Tracking**:
-   - `PipelineState` tracks prompt briefs, input images, intermediate assets (concepts, renders, scripts, videos, HTML), and user feedback across all stages.
+5. **Intermediate Asset, Revision History & State Tracking**:
+   - `PipelineState` tracks prompt briefs, input images, intermediate assets (concepts, renders, scripts, videos, HTML), `revision_history`, and `pending_revisions` across all stages and rollback iterations.
 
 6. **Design & Brand Guideline Independence**:
    - The skill and its core components **MUST NOT** impose design and brand guidelines (colors, fonts, visual tropes, styles).
@@ -158,7 +155,7 @@ Create `types.SubagentConfig` instances with:
 - `tools`: Equip only the tools the specific subagent requires (including `types.BuiltinTools.ASK_QUESTION` when interactive dialogue is needed).
 - `capabilities`: Typically `types.SubagentCapabilities(agent_behavior=types.AgentBehavior.AUTONOMOUS)` (or `types.AgentBehavior.INTERACTIVE` if the subagent directly initiates user questions).
 
-### Step 3: Wire Stages into the Pipeline Engine
+### Step 3: Wire Stages into the Pipeline Engine (with Deterministic Approval Gates)
 ```python
 from core.pipeline_engine import PipelineEngine, Stage
 from core.multimodal_input import load_multimodal_inputs
@@ -167,22 +164,32 @@ engine = PipelineEngine(
     stages=[
         Stage(
             name="concept",
+            description="Spatial analysis, concept specification, and direction selection.",
             subagent_config=concept_subagent_config,
             response_schema=ConceptSpec,
             run_fn=run_concept_step,
+            requires_approval=True,
+            approval_question="Approve the Spatial Concept & Selected Direction to proceed to 3D Staged Rendering?",
         ),
         Stage(
             name="visual_production",
+            description="Dynamic staging prompt synthesis and high-resolution image generation.",
             subagent_config=render_subagent_config,
             run_fn=run_render_step,
+            requires_approval=True,
+            approval_question="Approve the generated Staged Render to proceed to 10-Second Walkthrough Video?",
         ),
         Stage(
             name="video_production",
+            description="Temporal walkthrough choreography and 10-second video generation.",
             subagent_config=video_subagent_config,
             run_fn=run_video_step,
+            requires_approval=True,
+            approval_question="Approve the 10-Second Walkthrough Video to proceed to HTML5 Showcase Packaging?",
         ),
         Stage(
             name="presentation_packaging",
+            description="Bespoke mobile-responsive HTML5 showcase packaging with scroll animation.",
             subagent_config=presenter_subagent_config,
             run_fn=run_package_step,
         ),
@@ -191,8 +198,10 @@ engine = PipelineEngine(
 ```
 
 Each stage's `run_fn` has the signature `async def run_fn(agent: Agent, state: PipelineState, extra: Optional[str]) -> Dict[str, Any]`:
+- **Revision / Rollback Feedback (`extra`)**: When a downstream approval gate is denied or receives custom revision instructions, `resolve_rollback_stage` routes execution back to the target stage and passes `revision_instructions` as `extra`. Every `run_fn` MUST inspect `if extra:` and append those revision instructions to its prompt so the stage re-runs with the requested changes.
 - **Structured Extraction**: Call `spec, _ = await execute_structured_turn(prompt, response_schema=MyModel, ...)` to enforce Pydantic output natively.
 - **Human Dialogue / Review**: Ask clarifying questions or review direction via `BuiltinTools.ASK_QUESTION` or `prompt_ask_question(question, dynamic_options, default_index=0, autonomous=...)` with dynamic context-driven options and custom write-in.
+- **Deterministic Gate & Iterative Rollback**: When `Stage(requires_approval=True)` is set, `PipelineEngine.execute()` automatically prompts `prompt_approval_gate(...)` after `run_fn` completes. Only `GateDecision.approved == True` advances the pipeline; any other choice triggers `resolve_rollback_stage(...)` to rewind to the appropriate earlier (or current) stage.
 - **Asset Generation**: Call `generate_image_tool(...)` or `generate_video_tool(...)`, register outputs in `state.set_artifact("visual", local_path)`, and upload to GCS via `upload_to_gcs_tool(...)`.
 
 

@@ -41,19 +41,24 @@ Two architectural reference photographs of the same empty San Juan Islands house
 | :---: | :---: |
 | ![Empty Family Room Window View](./reference_assets/san_juan_family_room_window_view.jpg) | ![Empty Family Room From Patio](./reference_assets/san_juan_family_room_from_patio.jpg) |
 
-Run interactively (the agent derives staging options from the brief and room photos and prompts you in the console, including a `[Custom]` write-in option):
+Run interactively in the terminal (default mode without `--autonomous`):
+- **Dynamic Option Selection**: `spatial_concept_architect` derives 3–4 staging options from the brief and room photos (`prompt_ask_question`) and lets you pick an option or enter a `[Custom]` direction.
+- **Deterministic Approval Gates & Iterative Rollback (`requires_approval=True`)**: After Stages 1 (`concept`), 2 (`visual_production`), and 3 (`video_production`), `prompt_approval_gate` enforces a strict deterministic approval check (`GateDecision.approved == True`).
+  - **Only Option `[1]` (`Approve` / `yes`)** advances the pipeline to the next stage.
+  - **Any other response (`[2] Deny`, `[3] Custom`, or any freeform instructions)** blocks forward progression and invokes `resolve_rollback_stage` (`StageRoutingDecision`), which analyzes your feedback and rewinds the pipeline to the appropriate earlier (or current) stage (`concept`, `visual_production`, or `video_production`) with your `revision_instructions` injected into that stage's `extra` parameter.
 
 ```bash
 uv run python skills/multimodal-agent-builder/examples/architectural_virtual_staging_agent.py \
   --brief "Stage this vacant San Juan Islands waterfront family room in a Pacific Northwest Modern Luxury style: arrange a low-profile charcoal wool bouclé and cognac saddle-leather L-shaped sectional facing the stacked stone fireplace and island water views, a live-edge salvaged bigleaf maple slab coffee table on blackened steel legs, a pair of sculpted walnut and shearling lounge armchairs on a hand-knotted undyed wool area rug over the wide-plank white oak floor, and warm blown-amber glass and blackened bronze pendant lighting suspended from the Douglas fir trusses" \
   --image skills/multimodal-agent-builder/examples/reference_assets/san_juan_family_room_window_view.jpg \
-  --image skills/multimodal-agent-builder/examples/reference_assets/san_juan_family_room_from_patio.jpg
+  --image skills/multimodal-agent-builder/examples/reference_assets/san_juan_family_room_from_patio.jpg \
+  --output-dir skills/multimodal-agent-builder/examples/outputs/san_juan_islands_family_room_interactive
 ```
 
-![Staged Render Example](./outputs/san_juan_islands_family_room/staged_render.png)
+![Staged Render Example](./outputs/san_juan_islands_family_room_interactive/staged_render.png)
 
 <video controls width="100%">
-  <source src="./outputs/san_juan_islands_family_room/walkthrough_video.mp4" type="video/mp4">
+  <source src="./outputs/san_juan_islands_family_room_interactive/walkthrough_video.mp4" type="video/mp4">
 </video>
 
 ### 2. Headless / Autonomous Mode (`--autonomous`)

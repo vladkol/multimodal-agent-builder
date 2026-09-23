@@ -263,6 +263,11 @@ def make_stage_runners(
             f"Produce a complete SpatialConceptSpec including 3 to 4 distinct, context-derived "
             f"staging directions tailored to this specific brief."
         )
+        if extra:
+            prompt_text += (
+                f"\n\nHUMAN GATE REVISION INSTRUCTIONS (MUST BE APPLIED IN THIS ITERATION):\n{extra}"
+            )
+
         turn_payload = state.input_bundle.build_chat_turn_payload(prompt_text)
 
         concept_spec, _ = await execute_structured_turn(
@@ -290,6 +295,9 @@ def make_stage_runners(
             allow_custom=True,
         )
 
+        print(f"\n[Stage 1 Summary] Project: {concept_spec.project_title}")
+        print(f"[Stage 1 Summary] Selected Direction: {selected_direction}")
+
         state.data["concept_spec"] = concept_spec.model_dump()
         state.data["selected_direction"] = selected_direction
 
@@ -313,6 +321,10 @@ def make_stage_runners(
             f"Ensure `image_generation_prompt` reflects only the user's brief, reference geometry, "
             f"and confirmed direction."
         )
+        if extra:
+            render_instruction += (
+                f"\n\nHUMAN GATE REVISION INSTRUCTIONS (MUST BE APPLIED IN THIS ITERATION):\n{extra}"
+            )
 
         render_spec, _ = await execute_structured_turn(
             prompt=render_instruction,
@@ -337,6 +349,7 @@ def make_stage_runners(
             location=DEFAULT_LOCATION,
         )
         state.set_artifact("staged_render", generated_img_path)
+        print(f"\n[Stage 2 Artifact] Staged render saved to: {generated_img_path}")
 
         if bucket_name:
             img_mtls = upload_to_gcs_tool(
@@ -372,6 +385,11 @@ def make_stage_runners(
             f"Target aspect ratio: {aspect_ratio}. Write ONE single continuous slow camera dolly/slider motion "
             f"with zero timestamp markers, zero cuts, zero cross-dissolves, and 100% locked room & furniture geometry."
         )
+        if extra:
+            video_instruction += (
+                f"\n\nHUMAN GATE REVISION INSTRUCTIONS (MUST BE APPLIED IN THIS ITERATION):\n{extra}"
+            )
+
         video_turn_payload: List[Any] = [video_instruction]
         if staged_render_path and Path(staged_render_path).exists():
             video_turn_payload.append(
@@ -401,6 +419,7 @@ def make_stage_runners(
             location=DEFAULT_LOCATION,
         )
         state.set_artifact("walkthrough_video", generated_video_path)
+        print(f"\n[Stage 3 Artifact] Walkthrough video saved to: {generated_video_path}")
 
         if bucket_name:
             vid_mtls = upload_to_gcs_tool(
@@ -435,6 +454,10 @@ def make_stage_runners(
             f"RENDER SPEC:\n{json.dumps(render_spec_data, indent=2)}\n\n"
             f"VIDEO MOTION SPEC:\n{json.dumps(motion_spec_data, indent=2)}"
         )
+        if extra:
+            package_instruction += (
+                f"\n\nHUMAN GATE REVISION INSTRUCTIONS (MUST BE APPLIED IN THIS ITERATION):\n{extra}"
+            )
 
         presentation_spec, _ = await execute_structured_turn(
             prompt=package_instruction,
@@ -459,6 +482,7 @@ def make_stage_runners(
             "render_spec": render_spec_data,
             "motion_spec": motion_spec_data,
             "presentation_spec": presentation_spec.model_dump(),
+            "revision_history": state.revision_history,
             "artifacts": state.artifacts,
             "cloud_urls": state.cloud_urls,
         }
@@ -501,6 +525,7 @@ def make_stage_runners(
         html_path = (output_dir / "showcase.html").resolve()
         html_path.write_text(html_content, encoding="utf-8")
         state.set_artifact("showcase_html", str(html_path))
+        print(f"\n[Stage 4 Artifact] HTML5 Showcase saved to: {html_path}")
 
         if bucket_name:
             html_mtls = upload_to_gcs_tool(
@@ -558,6 +583,12 @@ def build_pipeline(
             subagent_config=subagents["concept"],
             response_schema=SpatialConceptSpec,
             run_fn=runners["concept"],
+            requires_approval=True,
+            approval_question=(
+                "Do you approve this Spatial Concept & Selected Staging Direction to proceed "
+                "to Stage 2 (3D Staged Render)? (Only Option [1] Approve advances the workflow; "
+                "Deny or Custom feedback will re-run Stage 1 with your revisions.)"
+            ),
         ),
         Stage(
             name="visual_production",
@@ -565,6 +596,13 @@ def build_pipeline(
             subagent_config=subagents["visual_production"],
             response_schema=StagingRenderSpec,
             run_fn=runners["visual_production"],
+            requires_approval=True,
+            approval_question=(
+                "Inspect the generated `staged_render.png`. Do you approve this Staged Render "
+                "to proceed to Stage 3 (10-Second Walkthrough Video)? (Only Option [1] Approve "
+                "advances the gate; any other response triggers the AI router to roll back to "
+                "either `concept` or `visual_production` based on your feedback.)"
+            ),
         ),
         Stage(
             name="video_production",
@@ -572,6 +610,13 @@ def build_pipeline(
             subagent_config=subagents["video_production"],
             response_schema=CinematicMotionSpec,
             run_fn=runners["video_production"],
+            requires_approval=True,
+            approval_question=(
+                "Inspect the generated `walkthrough_video.mp4`. Do you approve this Walkthrough Video "
+                "to proceed to Stage 4 (HTML5 Showcase Packaging)? (Only Option [1] Approve "
+                "advances the gate; any other response triggers the AI router to roll back to "
+                "`concept`, `visual_production`, or `video_production` based on your feedback.)"
+            ),
         ),
         Stage(
             name="presentation_packaging",
@@ -641,7 +686,12 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser.add_argument(
         "--autonomous",
         action="store_true",
-        help="Run in headless autonomous mode, automatically selecting default options without blocking.",
+        help="Run in headless autonomous mode, automatically selecting default options and approving gates without blocking.",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume from an existing pipeline_checkpoint.json in --output-dir if present (default: start fresh).",
     )
     return parser.parse_args(argv)
 
@@ -671,6 +721,7 @@ async def async_main(argv: Optional[List[str]] = None) -> PipelineState:
     return await engine.execute(
         inputs=input_bundle,
         autonomous=args.autonomous,
+        resume=args.resume,
     )
 
 

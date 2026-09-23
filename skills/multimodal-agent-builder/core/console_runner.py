@@ -222,3 +222,134 @@ def prompt_ask_question(
         except (KeyboardInterrupt, EOFError):
             print("\n[Default applied]")
             return opts[default_index].text
+
+
+STRICT_APPROVAL_TOKENS = {"yes", "y", "approve", "approved", "accept", "accepted"}
+STRICT_REJECTION_TOKENS = {"no", "n", "deny", "denied", "reject", "rejected", "revise"}
+
+
+class GateDecision:
+    """Deterministic result of an approval or yes/no gate interaction."""
+
+    def __init__(
+        self,
+        approved: bool,
+        raw_response: str,
+        selected_option_id: Optional[str] = None,
+        selected_option_text: Optional[str] = None,
+    ):
+        # Enforce strict boolean type
+        self.approved: bool = bool(approved)
+        self.raw_response: str = raw_response
+        self.selected_option_id: Optional[str] = selected_option_id
+        self.selected_option_text: Optional[str] = selected_option_text
+
+    def __repr__(self) -> str:
+        return (
+            f"GateDecision(approved={self.approved}, "
+            f"selected_option_id={self.selected_option_id!r}, "
+            f"raw_response={self.raw_response!r})"
+        )
+
+
+def prompt_approval_gate(
+    question: str,
+    approve_label: str = "Approve & Proceed to next stage",
+    deny_label: str = "Deny / Revise (stay or return to an earlier stage)",
+    custom_label: str = "[Custom] Provide feedback or specify which earlier stage to revisit",
+    autonomous: bool = False,
+) -> GateDecision:
+    """Deterministically evaluates a human-in-the-loop approval / yes-no gate.
+
+    Rule:
+    - `approved` is True ONLY if the user explicitly selects the approval option (`[1]` / ID `'approve'`)
+      or types an exact affirmative token (`yes`, `y`, `approve`, `approved`).
+    - Any other choice (`[2]` Deny, `[3]` Custom) or any freeform text input (even if it contains
+      partial words) deterministically sets `approved = False` and captures the user's feedback
+      so the pipeline agent can route execution back to the appropriate previous stage.
+    """
+    opts = [
+        types.AskQuestionOption(id="approve", text=approve_label),
+        types.AskQuestionOption(id="deny", text=deny_label),
+        types.AskQuestionOption(id="custom", text=custom_label),
+    ]
+
+    divider = "=" * 64
+    print(f"\n{divider}")
+    print(f"🔒 DETERMINISTIC APPROVAL GATE")
+    print(divider)
+    print(f"? {question}")
+    for idx, opt in enumerate(opts, 1):
+        marker = " (default)" if idx == 1 else ""
+        print(f"  [{idx}] {opt.text}{marker}")
+
+    if autonomous:
+        print(f"  [AUTONOMOUS GATE APPROVAL]: {opts[0].text}\n{divider}\n")
+        return GateDecision(
+            approved=True,
+            raw_response=opts[0].text,
+            selected_option_id="approve",
+            selected_option_text=opts[0].text,
+        )
+
+    try:
+        raw_input = input(f"\nGate Decision [1-{len(opts)}] (1=Approve, 2=Deny, or type feedback) > ").strip()
+    except (KeyboardInterrupt, EOFError):
+        raw_input = ""
+
+    # Pressing Enter with empty input selects the default option [1] Approve
+    if not raw_input or raw_input == "1" or raw_input.lower() in STRICT_APPROVAL_TOKENS:
+        print(f"✔ Gate Approved: {opts[0].text}\n{divider}\n")
+        return GateDecision(
+            approved=True,
+            raw_response=raw_input or opts[0].text,
+            selected_option_id="approve",
+            selected_option_text=opts[0].text,
+        )
+
+    # Explicit Deny option [2] or strict rejection token
+    if raw_input == "2" or raw_input.lower() in STRICT_REJECTION_TOKENS:
+        try:
+            feedback = input(
+                "Gate Denied. Describe what should be revised (or which earlier stage to return to) > "
+            ).strip()
+        except (KeyboardInterrupt, EOFError):
+            feedback = "User denied approval at gate and requested revision."
+        feedback_text = feedback or "User denied approval at gate and requested revision."
+        print(f"✖ Gate Denied — Revision requested: {feedback_text}\n{divider}\n")
+        return GateDecision(
+            approved=False,
+            raw_response=feedback_text,
+            selected_option_id="deny",
+            selected_option_text=opts[1].text,
+        )
+
+    # Explicit Custom option [3]
+    if raw_input == "3" or raw_input.lower() in {"custom", "[custom]"}:
+        try:
+            feedback = input(
+                "Enter your revision instructions or specify which stage to revisit > "
+            ).strip()
+        except (KeyboardInterrupt, EOFError):
+            feedback = "User requested custom revision at gate."
+        feedback_text = feedback or "User requested custom revision at gate."
+        print(f"↺ Gate Blocked (Custom Input) — Routing feedback: {feedback_text}\n{divider}\n")
+        return GateDecision(
+            approved=False,
+            raw_response=feedback_text,
+            selected_option_id="custom",
+            selected_option_text=opts[2].text,
+        )
+
+    # Any other freeform response -> deterministically NOT approved!
+    print(
+        f"↺ Gate Blocked (Non-approval response: {raw_input!r}) — "
+        f"Agent will determine which previous stage to return to.\n{divider}\n"
+    )
+    return GateDecision(
+        approved=False,
+        raw_response=raw_input,
+        selected_option_id=None,
+        selected_option_text=None,
+    )
+
